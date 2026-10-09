@@ -1,27 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hello WebSocket</title>
+    <!-- SockJS and STOMP dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <script>
-        // Alias SockJs to SockJS so both spellings work seamlessly
-        window.SockJs = window.SockJS;
-    </script>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body style="background: black; color: aliceblue">
- <div id="messages" style="height: 60vh">
+<body>
 
- </div>
-<div>
-    <form style="width: 100%; display: flex; justify-content: center; gap: 5px; align-items: center;">
-    <label for="name">Name</label>
-    <input id="name" style="padding: 6px;"/>
-    <label for="message"></label>
-    <input id="message" style="padding: 6px;"/>
-    <button id="send-btn" style="padding: 8px 20px; ">Send</button>
-    </form>
-    <script src="app.js?v=2"></script>
-</div>
+    <!-- 1. JOIN / USERNAME SCREEN -->
+    <div id="join-screen" class="join-container">
+        <div class="join-card">
+            <div class="logo-badge">
+                <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+            </div>
+            <h1>Welcome to Chat</h1>
+            <p>Enter your display name to join the live room.</p>
+            
+            <form id="join-form" onsubmit="return false;">
+                <div class="input-group">
+                    <label for="name">Your Name</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <input type="text" id="name" class="custom-input" placeholder="e.g. Alex Hunter" required autocomplete="off" autofocus />
+                    </div>
+                </div>
+                <button type="button" id="join-btn" class="primary-btn">
+                    <span>Enter Chat</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. FULL SCREEN CHAT INTERFACE -->
+    <div id="chat-screen" class="chat-container hidden">
+        <!-- Top Navigation / Info Bar -->
+        <header class="chat-header">
+            <div class="chat-room-info">
+                <div class="room-avatar">
+                    <svg viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"/></svg>
+                </div>
+                <div class="room-details">
+                    <h2>Live Chat Room</h2>
+                    <div class="status-indicator">
+                        <span id="status-dot" class="status-dot"></span>
+                        <span id="status-text">Connecting...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-profile-badge">
+                <div id="user-avatar" class="user-avatar-small">?</div>
+                <span id="user-display-name" class="user-name-text">Guest</span>
+            </div>
+        </header>
+
+        <!-- Messages Flow Area -->
+        <main id="messages" class="chat-messages-area">
+            <div class="welcome-banner">
+                👋 You have joined the room. Messages sent here will appear in real-time.
+            </div>
+        </main>
+
+        <!-- Message Input Bar -->
+        <footer class="chat-input-bar">
+            <form id="message-form" class="chat-form" onsubmit="return false;">
+                <input 
+                    type="text" 
+                    id="message" 
+                    class="chat-input-field" 
+                    placeholder="Type your message here..." 
+                    autocomplete="off" 
+                />
+                <button type="button" id="send-btn" class="send-button" title="Send message">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </form>
+        </footer>
+    </div>
+
+    <script src="app.js?v=4"></script>
 </body>
 </html>
