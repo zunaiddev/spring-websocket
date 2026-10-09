@@ -1,61 +1,44 @@
-const stompClient = new StompJs.Client({
-    brokerURL: 'ws://localhost:8080/gs-guide-websocket'
+const nameInput = document.querySelector("#name");
+const messageInput = document.querySelector("#message");
+const messages = document.querySelector("#messages");
+const sendBtn = document.querySelector("#send-btn");
+const form = document.querySelector("form");
+const socket = new SockJS("/chat");
+const stompClient = Stomp.over(socket);
+
+window.onload = connect;
+
+form.addEventListener("submit", (e)=>{
+    e.preventDefault();
+
+    const name = nameInput.value;
+    const message = messageInput.value;
+
+    stompClient.send("/app/send-message",{}, JSON.stringify({
+        message,
+    }));
 });
 
+function addMessage(msg){
+    const ele = document.createElement("p");
+    ele.textContent = typeof msg === "object" && msg !== null ? (msg.message || JSON.stringify(msg)) : msg;
 
-stompClient.onConnect = (frame) => {
-    setConnected(true);
-    console.log('Connected: ' + frame);
-    stompClient.subscribe("/topic/greetings", (greeting) => {
-        showGreeting(JSON.parse(greeting.body).content);
+    messages.appendChild(ele);
+    messageInput.value = "";
+}
+
+function connect(){
+    stompClient.connect({}, function (){
+        setConnected(true);
+        stompClient.subscribe("/topic/messages", function (data){
+            addMessage(JSON.parse(data.body));
+        });
     });
-};
-
-stompClient.onWebSocketError = (error) => {
-    console.error('Error with websocket', error);
-};
-
-stompClient.onStompError = (frame) => {
-    console.error('Broker reported error: ' + frame.headers['message']);
-    console.error('Additional details: ' + frame.body);
-};
-
-function setConnected(connected) {
-    $("#connect").prop("disabled", connected);
-    $("#disconnect").prop("disabled", !connected);
-    if (connected) {
-        $("#conversation").show();
-    }
-    else {
-        $("#conversation").hide();
-    }
-    $("#greetings").html("");
+    console.log("Connected to the socket");
 }
 
-function connect() {
-    stompClient.activate();
-}
+setConnected(true);
 
-function disconnect() {
-    stompClient.deactivate();
-    setConnected(false);
-    console.log("Disconnected");
+function setConnected(val){
+    sendBtn.disabled = !val;
 }
-
-function sendName() {
-    stompClient.publish({
-        destination: "/app/hello",
-        body: JSON.stringify({'name': $("#name").val()})
-    });
-}
-
-function showGreeting(message) {
-    $("#greetings").append("<tr><td>" + message + "</td></tr>");
-}
-
-$(function () {
-    $("form").on('submit', (e) => e.preventDefault());
-    $( "#connect" ).click(() => connect());
-    $( "#disconnect" ).click(() => disconnect());
-    $( "#send" ).click(() => sendName());
-});
