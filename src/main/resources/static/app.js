@@ -64,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 2. WebSocket Connection Management
     function connectWebSocket() {
         updateConnectionStatus(false, "Connecting...");
 
@@ -72,7 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const socket = new SockJS("/chat");
             stompClient = Stomp.over(socket);
 
-            stompClient.connect({}, function (frame) {
+            console.log("Username: ", currentUserName);
+
+            stompClient.connect({username: currentUserName}, function (frame) {
                 updateConnectionStatus(true, "Connected");
                 console.log("Connected to STOMP broker:", frame);
 
@@ -83,6 +84,15 @@ document.addEventListener("DOMContentLoaded", () => {
                         addMessage(rawMsg);
                     } catch (err) {
                         addMessage(response.body);
+                    }
+                });
+
+                stompClient.subscribe("/topic/user-status", function (response) {
+                    try {
+                        const payload = JSON.parse(response.body);
+                        console.log(payload);
+                    } catch (err) {
+                        console.log(response.body);
                     }
                 });
             }, function (error) {

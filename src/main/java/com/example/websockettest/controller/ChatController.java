@@ -11,8 +11,8 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class ChatController {
 
-    @MessageMapping("/send-message") // client send message here /app/send-message
-    @SendTo("/topic/messages") // whatever the function will return will be sent to this
+    @MessageMapping("/send-message")
+    @SendTo("/topic/messages")
    public ChatMessage sendMessage(ChatMessage chatMessage){
        return chatMessage;
    }
